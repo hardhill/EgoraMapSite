@@ -38,7 +38,7 @@ namespace EgoraMap
             loggerFactory.AddDebug();
             app.UseDefaultFiles();
             app.UseStaticFiles();
-            app.UseMvc();
+            app.UseMvc(); 
         }
     }
 }
