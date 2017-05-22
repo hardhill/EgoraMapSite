@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using EgoraMap.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace EgoraMap
 {
@@ -27,6 +29,9 @@ namespace EgoraMap
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            string con = "Data Source=SAPPHIRE;Initial Catalog=EgoraDB;Integrated Security=True;Connect Timeout=15;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            services.AddDbContext<DbEgoraContext>(options => options.UseSqlServer(con));
             // Add framework services.
             services.AddMvc();
         }

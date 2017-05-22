@@ -11,6 +11,99 @@
             integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n"
             crossorigin="anonymous"></script>
     <title>EgoraMap</title>
+    <script>
+
+        var map;
+        var markers = [];
+        //        var addURL = window.location.host + "/MyPage/westcampus.kml";
+        //        var srckml = window.location.protocol + "//"+addURL.replace('//','/');
+        var routePanelView = false;
+        var srckml = "http://hardhill.esy.es/Routes.kml";
+        console.log('loading: ' + document.readyState);
+        $(document).ready(function () {
+            
+            initActions();
+            initMap();
+        })
+
+        function initMap() {
+            var myLatlng = { lat: 51.871491, lng: 107.731951 };
+            var mapOptions = {
+                center: myLatlng,
+                zoom: 8,
+                mapTypeId: google.maps.MapTypeId.SATELLITE
+            };
+            map = new google.maps.Map(document.getElementById('map'), mapOptions);
+            loadKmlLayer(srckml, map);
+            //            map.addListener('click', function (e) {
+            //                placeMarkerAndPanTo(e.latLng, map);
+            //                placeMarkerAndFields(e.latLng, map);
+            //            });
+        }
+
+        function loadKmlLayer(srckml, map) {
+            var kmlLayer = new google.maps.KmlLayer(srckml, {
+                suppressInfoWindows: true,
+                preserveViewport: false,
+                map: map
+            });
+        }
+
+        function initActions() {
+            $(".panel-route").hide();
+            $("#linkRoutes").click(function () {
+                if (routePanelView) {
+                    $(".panel-route").hide();
+                    routePanelView = false;
+                }
+                else
+                {
+                    $(".panel-route").show();
+                    routePanelView = true;
+                    ViewAllRoutes();
+                }
+            });
+        }
+
+        function ViewAllRoutes() {
+            $.ajax({
+                url: '/api/routes',
+                type: 'GET',
+                contentType: "application/json",
+                success: function (viewroutes) {
+                    var rows = "";
+                    $.each(viewroutes, function (index, vr) {
+                        // добавляем полученные элементы в таблицу
+                        rows += row(vr);
+                    })
+                    $(".route-body").append(rows);
+                }
+            });
+
+        }
+
+        // создание строки для таблицы
+        var row = function (vroute) {
+            //return "<tr data-rowid='" + user.id + "'><td>" + user.id + "</td>" +
+            //    "<td>" + user.name + "</td> <td>" + user.age + "</td>" +
+            //    "<td><a class='editLink' data-id='" + user.id + "'>Изменить</a> | " +
+            //    "<a class='removeLink' data-id='" + user.id + "'>Удалить</a></td></tr>";
+
+            return "<div class='oneimage'> <img class='mapimage' src='/Files/Img/" + vroute.ImageMap + "' /><div class='titleimg'>" +
+                vroute.Name + "</div></div>";
+                //< div class="photki" >
+                //    @{ 
+                //           var selectedPhotos = new DbEgoraContext().Photos.Where(photo=>(photo.RouteId==@route.Id)).ToList() ;
+
+                //       }
+                //        @foreach(Photo photo in selectedPhotos)
+                //        {
+                //        <img src="~/Files/Photo/@photo.PhotoName" />
+                //    }
+                //</div>
+        }
+
+    </script>
 </head>
 <body>
     <nav class="navbar navbar-toggleable-md navbar-light bg-title1">
@@ -19,7 +112,7 @@
                 aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <!--<a class="navbar-brand" href="/Home/Index"><i class="logo"></i>MapEgora</a>-->
+        
         <a class="navbar-brand" rel="home" href="/" title="Egora Map Service">
             <img style="max-width:100px; margin-top: -7px;"
                  src="/img/logo.png">
@@ -27,7 +120,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="/Home/Routes">Маршруты<span class="sr-only">(current)</span></a>
+                    <button class="nav-link" id="linkRoutes">Маршруты<span class="sr-only">(current)</span></button>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Вход</a>
@@ -39,10 +132,16 @@
         </div>
     </nav>
     <div class="panel-about">
-        <div class="flex-sm-row">
-            <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aperiam asperiores blanditiis dolor esse eveniet expedita magni minima, mollitia nisi omnis, praesentium recusandae voluptate! Architecto corporis delectus error est explicabo tempore.</div>
-            <div></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6" id="map"></div>
+                <div class="col-lg-6"><p class="wellarticle">На этом сайте представлены самые популярные туристические трекинговые маршруты. Даны описания мест и фото от участников путешествий.</p></div>
+            </div>
         </div>
+    </div>
+    <div class="panel-route">
+        <h2>Маршруты</h2>
+        <div class="route-body"></div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"
             integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
@@ -50,5 +149,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"
             integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
             crossorigin="anonymous"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCI-xDAIte2eH2mehinBidaFHm3WhUkHAk&callback=initMap"
+            async defer></script>
 </body>
 </html>

@@ -1,3 +1,22 @@
 ﻿.bg-title1 {
     background-color: #448d96;
 }
+
+.panel-about {
+    padding:1em 0em 1em 0em;
+    background-color:cadetblue;
+}
+
+#map {
+    height: 400px;
+}
+
+.wellarticle {
+    padding: 1em 0em 1em 1em;
+    font-family: Roboto;
+    font-size: x-large;
+}
+.panel-route{
+    padding:1em 1em 0.5em 1em;
+    background-color:darkseagreen;
+}
