@@ -5,7 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="lib/font-awesome/css/font-awesome.min.css" />
     <link rel="stylesheet" href="css/mystyle.css">
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"
             integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n"
@@ -55,10 +56,14 @@
             $("#linkRoutes").click(function () {
                 if (routePanelView) {
                     $("#routes-block").hide();
+                    $("#addroute-block").hide();
+                    $("#oneroute-block").hide();
                     routePanelView = false;
                 }
                 else {
                     $("#routes-block").show();
+                    $("#addroute-block").hide();
+                    $("#oneroute-block").hide();
                     routePanelView = true;
                     ViewAllRoutes();
                 }
@@ -80,6 +85,18 @@
                 $('#ajaxBusy').show();
             }).ajaxStop(function () {
                 $('#ajaxBusy').hide();
+                });
+            //событие на клик по кнопке "новый маршрут"
+            $("#btnNewRoute").click(function () {
+                $("#routes-block").hide();
+                routePanelView = false;
+
+            });
+            //событие на клик закрыть список маршрутов
+            $("#btnCloseRoutes").click(function () {
+                $("#routes-block").hide();
+                routePanelView = false;
+
             });
         }
 
@@ -101,7 +118,7 @@
             });
 
 
-            // создание строки для таблицы
+            // создание строки для списка
             var row = function (vroute) {
                 
                 var strPhotki = "";
@@ -109,13 +126,52 @@
                 $.each(photki, function (index, pht) {
                     strPhotki += "<img src='/Files/Photo/" + pht + "'/>";
                 });
-                return "<div class='oneimage'><div class='titleimg'>" + vroute.name + "</div></div> <img class='mapimage' src='/Files/Img/" + vroute.imageMap + "' />" +
+                return "<div class='oneimage'><div class='titleimg'>" + vroute.name + "</div></div><img class='mapimage' src='/Files/Img/" +
+                    vroute.imageMap + "' onclick='clickOneRoute(" + vroute.id + ")' />" +
                     "<div class='photki'>" + strPhotki+ "</div>";
             }
 
 
         }
+        function clickOneRoute(Id) {
+            $('#addroute-block').hide();
+            $("#routes-block").hide();
+            routePanelView = false;
+            $('#oneroute-block').show();
+            ViewOneRoute(Id);
+        }
 
+        function ViewOneRoute(Id) {
+
+            $.ajax({
+                url: 'api/routes/' + String(Id),
+                type: 'GET',
+                contentType: "application/json",
+                success: function (data) {
+                    var rows = "";
+                    $("#oneroute-body").empty();
+                    $("#txtCaption").empty(); $("#txtCaption").append(data.name);
+                    rows += "<div class='oneimage'><img class='mapimage' src='/Files/Img/" +
+                        data.imageMap + "'/>"
+                    var strPhotki = "";
+                    $.each(data.photoPath, function (index, pht) {
+                        // добавляем полученные элементы в строку
+                        strPhotki += "<img src='/Files/Photo/" + pht + "'/>";    
+                    });
+                    rows += "<div class='photki'>" + strPhotki + "</div>";
+                    $("#oneroute-body").append(rows);
+                }
+            });
+
+            
+        }
+
+        function closeOneRoute() {
+            $('#oneroute-block').hide();
+            $('#addroute-block').hide();
+            $("#routes-block").show();
+            routePanelView = true;
+        }
         
 
 
@@ -162,12 +218,12 @@
                  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                      <span class="navbar-toggler-icon"></span>
                  </button>
-                 <div class="navbar-brand" href="#">Маршруты</div>
+                 <div class="navbar-brand"><i class="fa fa-map"></i> Маршруты</div>
                  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                      <div class="navbar-nav ml-auto">
                          <!--<a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>-->
-                         <a class="nav-item nav-link" href="#">Добавить</a>
-                         <a class="nav-item nav-link" href="#">Закрыть</a>
+                         <button class="nav-item btn-new1" id="btnNewRoute" ><i class="fa fa-plus"> </i>Новый маршрут</button>
+                         <button class="nav-item btn-new1" id="btnCloseRoutes" ><i class="fa fa-close"></i></button>
 
                      </div>
                  </div>
@@ -178,6 +234,84 @@
             </div>
         </div>
     </div>
+    <div id="oneroute-block" style="display:none">
+        <div class="panel-route">
+            <nav class="navbar navbar-toggleable navbar-light bg-faded bg-title2">
+                <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavEdit" aria-controls="navbarNavEdit" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-brand" id="txtCaption">Маршрут</div>
+                <div class="collapse navbar-collapse" id="navbarNavEdit">
+                    <div class="navbar-nav ml-auto">
+                        <!--<a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>-->
+                        <button class="nav-item btn-new1" id="btnDelRoute"><i class="fa fa-trash"> </i>Удалить</button>
+                        <button class="nav-item btn-new1" id="btnCloseRoute" onclick="closeOneRoute()"><i class="fa fa-close"></i></button>
+
+                    </div>
+                </div>
+            </nav>
+            <div class="container">
+
+                <div id="oneroute-body"></div>
+            </div>
+        </div>
+    </div>
+    <div id="addroute-block" style="display:none">
+        <div class="panel-route">
+            <div class="container">
+                <div class="card">
+                    <form id="frmAddRoute" action="api/routes" method="post" enctype="multipart/form-data">
+                        <div class="card-header"><h3>Новый маршрут</h3></div>
+                        <div class="card-block">
+
+                            <div class="form-group row">
+                                <label for="txtNameRoute" class="col-2 col-form-label">Название маршрута</label>
+                                <div class="col-10">
+                                    <input class="form-control" type="text" id="txtNameRoute" name="Name">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="txtDicrRoute" class="col-2 col-form-label">Описание</label>
+                                <div class="col-10">
+                                    <textarea class="form-control" id="txtDiscrRoute" rows="3" name="Description"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="mapInputFile" class="col-2 col-form-label">Файл изображения</label>
+                                <input type="file" class="form-control-file col-10" id="mapInpitFile" aria-describedby="fileHelp" name="uploadImage">
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-2"></div>
+                                <small id="fileHelp" class="form-text text-muted col-10">Выберите файл с изображением маршрута. Формат файла jpeg не должен превышать 5МБ</small>
+                            </div>
+                            <div class="form-group row">
+                                <label for="kmlInputFile" class="col-2 col-form-label">Файл KML</label>
+                                <input type="file" class="form-control-file col-10" id="kmlInpitFile" aria-describedby="fileHelp2" name="uploadKML">
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-2"></div>
+                                <small id="fileHelp2" class="form-text text-muted col-10">Выберите файл KML, который не должен превышать 5МБ</small>
+                            </div>
+                            <div id="hiddenfiles" hidden>
+
+                            </div>
+
+                            <div class="form-group row">
+                                <output id="photolist" name="photos"><img id="addimg" class="thumb" src="~/Contents/img/addphoto.png"></output>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary" form="frmAddRoute">Сохранить</button>
+                            <button type="button" class="btn" form="frmAddRoute" onclick="javascript: document.location.href = '/Home/Routes';">Отмена</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"
             integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
             crossorigin="anonymous"></script>

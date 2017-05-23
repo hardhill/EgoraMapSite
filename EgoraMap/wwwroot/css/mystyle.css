@@ -6,6 +6,10 @@
     background-color: #599854;
 }
 
+.bg-title3 {
+    background-color: rgba(89, 152, 84, 0.55);
+}
+
 .panel-about {
     padding: 1em 0em 1em 0em;
     background-color: cadetblue;
@@ -53,3 +57,12 @@
         border: 1px solid #000;
         margin: 10px 5px 0 0;
     }
+
+button.btn-new1{
+    border-style:solid;
+    border-width:thin;
+    border-color:#448d96;
+    border-color: cadetblue;
+    border-radius:6px;
+    margin:0px 5px 0px 5px;
+}
