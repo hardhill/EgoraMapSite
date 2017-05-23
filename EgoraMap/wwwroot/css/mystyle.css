@@ -2,9 +2,13 @@
     background-color: #448d96;
 }
 
+.bg-title2 {
+    background-color: #599854;
+}
+
 .panel-about {
-    padding:1em 0em 1em 0em;
-    background-color:cadetblue;
+    padding: 1em 0em 1em 0em;
+    background-color: cadetblue;
 }
 
 #map {
@@ -16,7 +20,36 @@
     font-family: Roboto;
     font-size: x-large;
 }
-.panel-route{
-    padding:1em 1em 0.5em 1em;
-    background-color:darkseagreen;
+
+.panel-route {
+    /*padding:1em 1em 0.5em 1em;*/
+    background-color: darkseagreen;
 }
+
+    .panel-route h2 {
+        text-align:center;
+    }
+
+.titleimg {
+    left: 0px;
+    margin-top:10px;
+    padding: 3px 10px;
+    width: 800px;
+    background: rgba(255, 255, 255, 0.55);
+}
+
+.oneimage {
+    /*height: 200px;*/
+}
+
+.photki {
+    position:relative;
+    top:-2em;
+    padding-left: 10px;
+}
+
+    .photki img {
+        height: 75px;
+        border: 1px solid #000;
+        margin: 10px 5px 0 0;
+    }

@@ -7,7 +7,7 @@
 
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/mystyle.css">
-    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
             integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n"
             crossorigin="anonymous"></script>
     <title>EgoraMap</title>
@@ -19,9 +19,10 @@
         //        var srckml = window.location.protocol + "//"+addURL.replace('//','/');
         var routePanelView = false;
         var srckml = "http://hardhill.esy.es/Routes.kml";
+       
         console.log('loading: ' + document.readyState);
         $(document).ready(function () {
-            
+
             initActions();
             initMap();
         })
@@ -50,18 +51,35 @@
         }
 
         function initActions() {
-            $(".panel-route").hide();
+            $("#routes-block").hide();
             $("#linkRoutes").click(function () {
                 if (routePanelView) {
-                    $(".panel-route").hide();
+                    $("#routes-block").hide();
                     routePanelView = false;
                 }
-                else
-                {
-                    $(".panel-route").show();
+                else {
+                    $("#routes-block").show();
                     routePanelView = true;
                     ViewAllRoutes();
                 }
+            });
+            //изменение свойств индикатора загрузки
+            $('#ajaxBusy').css({
+                display: "none",
+                margin: "0px",
+                paddingLeft: "0px",
+                paddingRight: "0px",
+                paddingTop: "0px",
+                paddingBottom: "0px",
+                position: "absolute",
+                top: "3px",
+                width: "auto"
+            });
+            // события на аякс-загрузку
+            $(document).ajaxStart(function () {
+                $('#ajaxBusy').show();
+            }).ajaxStop(function () {
+                $('#ajaxBusy').hide();
             });
         }
 
@@ -70,49 +88,47 @@
                 url: '/api/routes',
                 type: 'GET',
                 contentType: "application/json",
-                success: function (viewroutes) {
+                success: function (data) {
                     var rows = "";
-                    $.each(viewroutes, function (index, vr) {
+                    $("#route-body").empty();
+                    $.each(data, function (index, vr) {
                         // добавляем полученные элементы в таблицу
                         rows += row(vr);
-                    })
-                    $(".route-body").append(rows);
+                    });
+                    $("#route-body").append(rows);
+
                 }
             });
 
+
+            // создание строки для таблицы
+            var row = function (vroute) {
+                
+                var strPhotki = "";
+                var photki = vroute.photoPath;
+                $.each(photki, function (index, pht) {
+                    strPhotki += "<img src='/Files/Photo/" + pht + "'/>";
+                });
+                return "<div class='oneimage'><div class='titleimg'>" + vroute.name + "</div></div> <img class='mapimage' src='/Files/Img/" + vroute.imageMap + "' />" +
+                    "<div class='photki'>" + strPhotki+ "</div>";
+            }
+
+
         }
 
-        // создание строки для таблицы
-        var row = function (vroute) {
-            //return "<tr data-rowid='" + user.id + "'><td>" + user.id + "</td>" +
-            //    "<td>" + user.name + "</td> <td>" + user.age + "</td>" +
-            //    "<td><a class='editLink' data-id='" + user.id + "'>Изменить</a> | " +
-            //    "<a class='removeLink' data-id='" + user.id + "'>Удалить</a></td></tr>";
+        
 
-            return "<div class='oneimage'> <img class='mapimage' src='/Files/Img/" + vroute.ImageMap + "' /><div class='titleimg'>" +
-                vroute.Name + "</div></div>";
-                //< div class="photki" >
-                //    @{ 
-                //           var selectedPhotos = new DbEgoraContext().Photos.Where(photo=>(photo.RouteId==@route.Id)).ToList() ;
-
-                //       }
-                //        @foreach(Photo photo in selectedPhotos)
-                //        {
-                //        <img src="~/Files/Photo/@photo.PhotoName" />
-                //    }
-                //</div>
-        }
 
     </script>
 </head>
 <body>
-    <nav class="navbar navbar-toggleable-md navbar-light bg-title1">
+    <nav class="navbar navbar-toggleable-md navbar-light bg-title1" role="navigation">
         <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
                 data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
                 aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        
+
         <a class="navbar-brand" rel="home" href="/" title="Egora Map Service">
             <img style="max-width:100px; margin-top: -7px;"
                  src="/img/logo.png">
@@ -131,17 +147,36 @@
             </ul>
         </div>
     </nav>
-    <div class="panel-about">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6" id="map"></div>
-                <div class="col-lg-6"><p class="wellarticle">На этом сайте представлены самые популярные туристические трекинговые маршруты. Даны описания мест и фото от участников путешествий.</p></div>
-            </div>
+        <div class="panel-about">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6" id="map"></div>
+                    <div class="col-lg-6"><p class="wellarticle">На этом сайте представлены самые популярные туристические трекинговые маршруты. Даны описания мест и фото от участников путешествий.</p></div>
+                </div>
         </div>
     </div>
-    <div class="panel-route">
-        <h2>Маршруты</h2>
-        <div class="route-body"></div>
+    <div id="ajaxBusy"><p><img src="img/wcursor.gif" /></p></div>
+    <div id="routes-block">
+         <div class="panel-route">
+             <nav class="navbar navbar-toggleable navbar-light bg-faded bg-title2">
+                 <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                     <span class="navbar-toggler-icon"></span>
+                 </button>
+                 <div class="navbar-brand" href="#">Маршруты</div>
+                 <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                     <div class="navbar-nav ml-auto">
+                         <!--<a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>-->
+                         <a class="nav-item nav-link" href="#">Добавить</a>
+                         <a class="nav-item nav-link" href="#">Закрыть</a>
+
+                     </div>
+                 </div>
+             </nav>
+             <div class="container">
+                
+                <div id="route-body"></div>
+            </div>
+        </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"
             integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
