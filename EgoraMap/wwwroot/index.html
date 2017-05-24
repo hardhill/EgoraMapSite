@@ -15,13 +15,16 @@
     <script>
 
         var map;
+
         var markers = [];
         //        var addURL = window.location.host + "/MyPage/westcampus.kml";
         //        var srckml = window.location.protocol + "//"+addURL.replace('//','/');
         var routePanelView = false;
         var srckml = "http://hardhill.esy.es/Routes.kml";
-       
+
+        var nfile = 0;
         console.log('loading: ' + document.readyState);
+
         $(document).ready(function () {
 
             initActions();
@@ -89,6 +92,8 @@
             //событие на клик по кнопке "новый маршрут"
             $("#btnNewRoute").click(function () {
                 $("#routes-block").hide();
+                $('#addroute-block').show();
+                $('#oneroute-block').hide();
                 routePanelView = false;
 
             });
@@ -98,6 +103,15 @@
                 routePanelView = false;
 
             });
+            //событие на клик закрыть добавление маршрута
+            $("#btnCloseAdd").click(function () {
+                $("#addroute-block").hide();
+                routePanelView = false;
+
+            });
+            //событие на добавление нового фото к маршруту
+            document.getElementById('addimg').addEventListener('click', addFile, false);
+
         }
 
         function ViewAllRoutes() {
@@ -172,7 +186,50 @@
             $("#routes-block").show();
             routePanelView = true;
         }
-        
+
+        function addFile(evt) {
+            //фотографий загруженных всего
+            var ninp = $('#photolist').children().length;
+            //добавить элемент загрузки файла
+            $('#hiddenfiles').append("<input type=\"file\" name=\"ffile\" id=\"" + "f" + ninp.toString() + "\"/>");
+            //прицепить событие на изменение(выбор файла)
+            document.getElementById('f' + ninp.toString()).addEventListener('change', handleFileSelect, false);
+            $('#f' + ninp.toString()).click();
+        }
+
+        function handleFileSelect(evt) {
+            var files = evt.target.files; // FileList object
+            nfile++;
+
+
+            // Loop through the FileList and render image files as thumbnails.
+            for (var i = 0, f; f = files[i]; i++) {
+
+                // Only process image files.
+                if (!f.type.match('image.*')) {
+                    continue;
+                }
+
+                var reader = new FileReader();
+
+                // Closure to capture the file information.
+                reader.onload = (function (theFile) {
+                    return function (e) {
+                        // Render thumbnail.
+                        var addimg = document.getElementById('addimg');
+                        var span = document.createElement('span');
+                        span.innerHTML = ['<img class="thumb" src="', e.target.result,
+                            '" title="', escape(theFile.name), '"/>'].join('');
+                        document.getElementById('photolist').insertBefore(span, addimg);
+                        //------
+                    };
+                })(f);
+
+                // Read in the image file as a data URL.
+                reader.readAsDataURL(f);
+
+            }
+        }
 
 
     </script>
@@ -258,10 +315,21 @@
     </div>
     <div id="addroute-block" style="display:none">
         <div class="panel-route">
+            <nav class="navbar navbar-toggleable navbar-light bg-faded bg-title2">
+                <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavAdd" aria-controls="navbarNavAdd" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-brand"><i class="fa fa-map-marker"></i> Новый маршрут</div>
+                <div class="collapse navbar-collapse" id="navbarNavAdd">
+                    <div class="navbar-nav ml-auto">
+                        <button class="nav-item btn-new1" id="btnCloseAdd"><i class="fa fa-close"></i></button>
+                    </div>
+                </div>
+            </nav>
             <div class="container">
-                <div class="card">
-                    <form id="frmAddRoute" action="api/routes" method="post" enctype="multipart/form-data">
-                        <div class="card-header"><h3>Новый маршрут</h3></div>
+                <div class="card mt-2">
+                    <form id="frmAddRoute" action="http://localhost:62642/api/routes" method="post" enctype="multipart/form-data">
+                        
                         <div class="card-block">
 
                             <div class="form-group row">
@@ -299,12 +367,12 @@
                             </div>
 
                             <div class="form-group row">
-                                <output id="photolist" name="photos"><img id="addimg" class="thumb" src="~/Contents/img/addphoto.png"></output>
+                                <output id="photolist" name="photos"><img id="addimg" class="thumb" src="img/addphoto.png"></output>
                             </div>
                         </div>
                         <div class="card-footer">
                             <button type="submit" class="btn btn-primary" form="frmAddRoute">Сохранить</button>
-                            <button type="button" class="btn" form="frmAddRoute" onclick="javascript: document.location.href = '/Home/Routes';">Отмена</button>
+                            <button type="button" class="btn" form="frmAddRoute" onclick="closeOneRoute()">Отмена</button>
                         </div>
                     </form>
                 </div>
