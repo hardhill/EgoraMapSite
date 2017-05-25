@@ -17,7 +17,7 @@ namespace EgoraMap.Controllers
     [Route("api/Routes")]
     public class RoutesController : Controller
     {
-       
+
         DbEgoraContext db = new DbEgoraContext();
         IHostingEnvironment _appEnvironment;
 
@@ -62,6 +62,45 @@ namespace EgoraMap.Controllers
             return Ok(vr);
         }
 
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int Id)
+        {
+            
+            Route route = db.Routes.FirstOrDefault(x => x.Id == Id);
+            if (route == null)  return NotFound();
+            string fileimg = route.RouteImage;
+            string filekml = route.RouteKML;
+            using(DbEgoraContext db2 = new DbEgoraContext())
+            {
+                IEnumerable<Photo> photos = db2.Photos.Where(x => x.RouteId == route.Id);
+                foreach(var photo in photos)
+                {
+                    string filephoto = photo.PhotoName;
+                    try
+                    {
+                        System.IO.File.Delete(_appEnvironment.WebRootPath + "/Files/Photo/" + filephoto);
+                    }
+                    catch(Exception e)
+                    {
+                        return NotFound("Ошибка удаления файла");
+                    }
+                }
+            }
+            
+            try
+            {
+                System.IO.File.Delete(_appEnvironment.WebRootPath+"/Files/Img/"+fileimg);
+                System.IO.File.Delete(_appEnvironment.WebRootPath + "/Files/Kml/" + filekml);
+            }
+            catch(Exception e)
+            {
+                return NotFound(e.Message);
+            }
+            db.Routes.Remove(route);
+            db.SaveChanges();
+            return Ok();
+        }
+
         [HttpPost]
         public async Task<IActionResult> AddEgoraMap(IFormFile uploadImage, IFormFile uploadKML, IFormFileCollection ffile)
         {
@@ -78,13 +117,13 @@ namespace EgoraMap.Controllers
                 int arrPhoto = Request.Form.Files.Count;
                 urlimg = String.Format("{0}_{1}{2}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), Guid.NewGuid(), Path.GetExtension(fileNameImage));
                 urlkml = String.Format("{0}_{1}{2}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), Guid.NewGuid(), Path.GetExtension(fileNameKML));
-                
+
                 route.Name = strName;
                 route.Description = strDescription;
                 route.RouteImage = urlimg;
                 route.RouteKML = urlkml;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return Forbid("Добавление записи не выполнено." + e.Message.ToString());
             }
@@ -94,7 +133,7 @@ namespace EgoraMap.Controllers
                 // сохраняем файл в папку Files в проекте
                 string pathimg = "/Files/Img/" + urlimg;
                 string pathkml = "/Files/Kml/" + urlkml;
-                using(var fileStream = new FileStream(_appEnvironment.WebRootPath + pathimg, FileMode.Create))
+                using (var fileStream = new FileStream(_appEnvironment.WebRootPath + pathimg, FileMode.Create))
                 {
                     await uploadImage.CopyToAsync(fileStream);
                 }
@@ -104,7 +143,7 @@ namespace EgoraMap.Controllers
                 }
                 if (ffile != null)
                 {
-                    foreach(var photoFile in ffile)
+                    foreach (var photoFile in ffile)
                     {
                         string photoNameImage = System.IO.Path.GetFileName(photoFile.FileName);
                         string urlphoto = String.Format("{0}_{1}{2}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), Guid.NewGuid(), Path.GetExtension(photoNameImage));
@@ -113,7 +152,7 @@ namespace EgoraMap.Controllers
                         photo.Photocreated = DateTime.Now;
                         photo.Description = photoNameImage;
                         route.Photos.Add(photo);
-                        using(var fileStream = new FileStream(_appEnvironment.WebRootPath + urlphoto, FileMode.Create))
+                        using (var fileStream = new FileStream(_appEnvironment.WebRootPath + urlphoto, FileMode.Create))
                         {
                             await photoFile.CopyToAsync(fileStream);
                         }
@@ -123,13 +162,13 @@ namespace EgoraMap.Controllers
                 db.SaveChanges();
                 return Ok();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                return Forbid("Добавление записи не выполнено."+e.Message.ToString());
+                return Forbid("Добавление записи не выполнено." + e.Message.ToString());
             }
-            
 
-           
+
+
         }
 
         private IEnumerable<string> GetPhotos(int id)

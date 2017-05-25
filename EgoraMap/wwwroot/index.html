@@ -166,7 +166,7 @@
                     $("#oneroute-body").empty();
                     $("#txtCaption").empty(); $("#txtCaption").append(data.name);
                     rows += "<div class='oneimage'><img class='mapimage' src='/Files/Img/" +
-                        data.imageMap + "'/>"
+                        data.imageMap + "'/><input id='idkeyroute' type='hidden' value='"+data.id+"'>"
                     var strPhotki = "";
                     $.each(data.photoPath, function (index, pht) {
                         // добавляем полученные элементы в строку
@@ -178,6 +178,23 @@
             });
 
             
+        }
+
+        // Удаление пользователя
+        function DeleteOneRoute(Id) {
+            $.ajax({
+                url: "api/routes/" + Id,
+                contentType: "application/json",
+                method: "DELETE",
+                success: function (data) {
+                    alert("Запись удалена");
+                }
+            });
+        }
+        function deleteRoute() {
+            var a = $("#idkeyroute").val();
+            if(a>0)
+                DeleteOneRoute(a);
         }
 
         function closeOneRoute() {
@@ -301,7 +318,7 @@
                 <div class="collapse navbar-collapse" id="navbarNavEdit">
                     <div class="navbar-nav ml-auto">
                         <!--<a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>-->
-                        <button class="nav-item btn-new1" id="btnDelRoute"><i class="fa fa-trash"> </i>Удалить</button>
+                        <button class="nav-item btn-new1" id="btnDelRoute" onclick="deleteRoute()"><i class="fa fa-trash"> </i>Удалить</button>
                         <button class="nav-item btn-new1" id="btnCloseRoute" onclick="closeOneRoute()"><i class="fa fa-close"></i></button>
 
                     </div>
