@@ -112,6 +112,10 @@
             //событие на добавление нового фото к маршруту
             document.getElementById('addimg').addEventListener('click', addFile, false);
 
+            //событие на кнопку записать новый маршрут
+            $("#btnSaveRoute").click(function () {
+                AddRoute();
+            });
         }
 
         function ViewAllRoutes() {
@@ -165,22 +169,45 @@
                     var rows = "";
                     $("#oneroute-body").empty();
                     $("#txtCaption").empty(); $("#txtCaption").append(data.name);
-                    rows += "<div class='oneimage'><img class='mapimage' src='/Files/Img/" +
-                        data.imageMap + "'/><input id='idkeyroute' type='hidden' value='"+data.id+"'>"
+                    //rows += "<div class='oneimage'><img class='mapimage' src='/Files/Img/" + data.imageMap + "'/><input id='idkeyroute' type='hidden' value='"+data.id+"'></div>";
+                    rows += "<input id='idkeyroute' type='hidden' value='" + data.id + "'>";
                     var strPhotki = "";
                     $.each(data.photoPath, function (index, pht) {
                         // добавляем полученные элементы в строку
                         strPhotki += "<img src='/Files/Photo/" + pht + "'/>";    
                     });
-                    rows += "<div class='photki'>" + strPhotki + "</div>";
+                    rows += "<div class='photki2'>" + strPhotki + "</div>";
+                    rows += "<div class='description'>" + data.description + "</div>"
                     $("#oneroute-body").append(rows);
                 }
             });
 
             
         }
+        //Добавление маршрута ajax
+        function AddRoute() {
+            var $data = {} ;
+            var dataForm = new FormData($("form#frmAddRoute")[0]);
+            
 
-        // Удаление пользователя
+            $.ajax({
+                type: "POST",
+                url: "http://localhost:62642/api/routes",
+                contentType: false,
+                processData: false,
+                data: dataForm,
+                cache:false,
+                success: function (data) {
+                    alert(data);
+                },
+                error: function () {
+                    alert("ERORR");
+                }
+            });
+
+        }
+
+        // Удаление маршрута
         function DeleteOneRoute(Id) {
             $.ajax({
                 url: "api/routes/" + Id,
@@ -188,6 +215,8 @@
                 method: "DELETE",
                 success: function (data) {
                     alert("Запись удалена");
+                    ViewAllRoutes();
+                    closeOneRoute();
                 }
             });
         }
@@ -208,7 +237,7 @@
             //фотографий загруженных всего
             var ninp = $('#photolist').children().length;
             //добавить элемент загрузки файла
-            $('#hiddenfiles').append("<input type=\"file\" name=\"ffile\" id=\"" + "f" + ninp.toString() + "\"/>");
+            $('#hiddenfiles').append("<input class=\"photofile\" type=\"file\" name=\"ffile\" id=\"" + "f" + ninp.toString() + "\"/>");
             //прицепить событие на изменение(выбор файла)
             document.getElementById('f' + ninp.toString()).addEventListener('change', handleFileSelect, false);
             $('#f' + ninp.toString()).click();
@@ -388,7 +417,7 @@
                             </div>
                         </div>
                         <div class="card-footer">
-                            <button type="submit" class="btn btn-primary" form="frmAddRoute">Сохранить</button>
+                            <button type="button" class="btn btn-primary" form="frmAddRoute" id="btnSaveRoute">Сохранить</button>
                             <button type="button" class="btn" form="frmAddRoute" onclick="closeOneRoute()">Отмена</button>
                         </div>
                     </form>

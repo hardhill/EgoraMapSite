@@ -30,7 +30,7 @@ namespace EgoraMap
         public void ConfigureServices(IServiceCollection services)
         {
 
-            string con = "Data Source=SAPPHIRE;Initial Catalog=EgoraDB;Integrated Security=True;Connect Timeout=15;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            string con = "Data Source=SAPPHIRE;Initial Catalog=EgoraDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
             services.AddDbContext<DbEgoraContext>(options => options.UseSqlServer(con));
             // Add framework services.
             services.AddMvc();

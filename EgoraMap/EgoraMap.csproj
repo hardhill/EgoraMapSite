@@ -7,6 +7,8 @@
 
   <ItemGroup>
     <Content Include="wwwroot\css\mystyle.css" />
+    <Content Include="wwwroot\Files\Img\20170525232445318_1be02e7d-a416-48d8-84ff-b9ebff1b5512.png" />
+    <Content Include="wwwroot\Files\Kml\20170525232445318_80fb70d2-1ac3-482a-94e1-8f918a6951c3.kml" />
     <Content Include="wwwroot\index.html" />
   </ItemGroup>
 
@@ -29,8 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\Files\Kml\" />
-    <Folder Include="wwwroot\Files\Img\" />
     <Folder Include="wwwroot\img\" />
   </ItemGroup>
 

@@ -101,74 +101,136 @@ namespace EgoraMap.Controllers
             return Ok();
         }
 
+        //[HttpPost]
+        //public async Task<IActionResult> AddEgoraMap(IFormFile uploadImage, IFormFile uploadKML, IFormFileCollection ffile)
+        //{
+        //    string urlimg, urlkml;
+        //    Route route = new Route();
+        //    try
+        //    {
+        //        // получаем имя файла
+        //        string fileNameImage = System.IO.Path.GetFileName(uploadImage.FileName);
+        //        string fileNameKML = System.IO.Path.GetFileName(uploadKML.FileName);
+
+        //        string strName = HttpContext.Request.Form["Name"];
+        //        string strDescription = HttpContext.Request.Form["Description"];
+        //        int arrPhoto = Request.Form.Files.Count;
+        //        urlimg = String.Format("{0}_{1}{2}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), Guid.NewGuid(), Path.GetExtension(fileNameImage));
+        //        urlkml = String.Format("{0}_{1}{2}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), Guid.NewGuid(), Path.GetExtension(fileNameKML));
+
+        //        route.Name = strName;
+        //        route.Description = strDescription;
+        //        route.RouteImage = urlimg;
+        //        route.RouteKML = urlkml;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return Forbid("Добавление записи не выполнено." + e.Message.ToString());
+        //    }
+
+        //    try
+        //    {
+        //        // сохраняем файл в папку Files в проекте
+        //        string pathimg = "/Files/Img/" + urlimg;
+        //        string pathkml = "/Files/Kml/" + urlkml;
+        //        using (var fileStream = new FileStream(_appEnvironment.WebRootPath + pathimg, FileMode.Create))
+        //        {
+        //            await uploadImage.CopyToAsync(fileStream);
+        //        }
+        //        using (var fileStream = new FileStream(_appEnvironment.WebRootPath + pathkml, FileMode.Create))
+        //        {
+        //            await uploadKML.CopyToAsync(fileStream);
+        //        }
+        //        if (ffile != null)
+        //        {
+        //            foreach (var photoFile in ffile)
+        //            {
+        //                string photoNameImage = System.IO.Path.GetFileName(photoFile.FileName);
+        //                string urlphoto = String.Format("{0}_{1}{2}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), Guid.NewGuid(), Path.GetExtension(photoNameImage));
+        //                Photo photo = new Photo();
+        //                photo.PhotoName = urlphoto;
+        //                photo.Photocreated = DateTime.Now;
+        //                photo.Description = photoNameImage;
+        //                route.Photos.Add(photo);
+        //                using (var fileStream = new FileStream(_appEnvironment.WebRootPath + "/Files/Photo/"+urlphoto, FileMode.Create))
+        //                {
+        //                    await photoFile.CopyToAsync(fileStream);
+        //                }
+        //            }
+        //        }
+        //        db.Entry(route).State = EntityState.Added;
+        //        db.SaveChanges();
+        //        return Json("[{}]");
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return Forbid("Добавление записи не выполнено." + e.Message.ToString());
+        //    }
+
+
+
+        //}
+
         [HttpPost]
-        public async Task<IActionResult> AddEgoraMap(IFormFile uploadImage, IFormFile uploadKML, IFormFileCollection ffile)
+        public IActionResult AddMapRoute(IFormFile uploadImage, IFormFile uploadKML, IFormFileCollection ffile)
         {
             string urlimg, urlkml;
+
+            string strName = HttpContext.Request.Form["Name"];
+            string strDescription = HttpContext.Request.Form["Description"];
+            if (strName == "")
+            {
+                return Forbid("Не указано название карты");
+            }
+            if (uploadImage == null || uploadKML == null)
+            {
+                return Forbid("Нет файла изображения маршрута или файла KML");
+            }
+            // получаем имя файла из переданных параметров
+            string fileNameImage = System.IO.Path.GetFileName(uploadImage.FileName);
+            string fileNameKML = System.IO.Path.GetFileName(uploadKML.FileName);
+            //формируем имя файла для сохранения в БД
+            urlimg = String.Format("{0}_{1}{2}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), Guid.NewGuid(), Path.GetExtension(fileNameImage));
+            urlkml = String.Format("{0}_{1}{2}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), Guid.NewGuid(), Path.GetExtension(fileNameKML));
+
+            List<Photo> photos = new List<Photo>();
+            if (ffile != null)
+            {
+                foreach(IFormFile photoFile in ffile)
+                {
+                    string photoNameImage = System.IO.Path.GetFileName(photoFile.FileName);
+                    string urlphoto = String.Format("{0}_{1}{2}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), Guid.NewGuid(), Path.GetExtension(photoNameImage));
+                    Photo photo = new Photo();
+                    photo.PhotoName = urlphoto;
+                    photo.Photocreated = DateTime.Now;
+                    photo.Description = photoNameImage;
+                    photos.Add(photo);
+                    try
+                    {
+                        using (var fileStream = new FileStream(_appEnvironment.WebRootPath + "/Files/Photo/" + urlphoto, FileMode.Create))
+                        {
+                            photoFile.CopyTo(fileStream);
+                        }
+                    }
+                    catch (Exception e) { return Forbid(); }
+                }
+            }
+
             Route route = new Route();
             try
             {
-                // получаем имя файла
-                string fileNameImage = System.IO.Path.GetFileName(uploadImage.FileName);
-                string fileNameKML = System.IO.Path.GetFileName(uploadKML.FileName);
-
-                string strName = HttpContext.Request.Form["Name"];
-                string strDescription = HttpContext.Request.Form["Description"];
-                int arrPhoto = Request.Form.Files.Count;
-                urlimg = String.Format("{0}_{1}{2}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), Guid.NewGuid(), Path.GetExtension(fileNameImage));
-                urlkml = String.Format("{0}_{1}{2}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), Guid.NewGuid(), Path.GetExtension(fileNameKML));
-
                 route.Name = strName;
                 route.Description = strDescription;
                 route.RouteImage = urlimg;
                 route.RouteKML = urlkml;
-            }
-            catch (Exception e)
-            {
-                return Forbid("Добавление записи не выполнено." + e.Message.ToString());
-            }
-
-            try
-            {
-                // сохраняем файл в папку Files в проекте
-                string pathimg = "/Files/Img/" + urlimg;
-                string pathkml = "/Files/Kml/" + urlkml;
-                using (var fileStream = new FileStream(_appEnvironment.WebRootPath + pathimg, FileMode.Create))
-                {
-                    await uploadImage.CopyToAsync(fileStream);
-                }
-                using (var fileStream = new FileStream(_appEnvironment.WebRootPath + pathkml, FileMode.Create))
-                {
-                    await uploadKML.CopyToAsync(fileStream);
-                }
-                if (ffile != null)
-                {
-                    foreach (var photoFile in ffile)
-                    {
-                        string photoNameImage = System.IO.Path.GetFileName(photoFile.FileName);
-                        string urlphoto = String.Format("{0}_{1}{2}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), Guid.NewGuid(), Path.GetExtension(photoNameImage));
-                        Photo photo = new Photo();
-                        photo.PhotoName = urlphoto;
-                        photo.Photocreated = DateTime.Now;
-                        photo.Description = photoNameImage;
-                        route.Photos.Add(photo);
-                        using (var fileStream = new FileStream(_appEnvironment.WebRootPath + urlphoto, FileMode.Create))
-                        {
-                            await photoFile.CopyToAsync(fileStream);
-                        }
-                    }
-                }
+                route.Photos = photos;
                 db.Entry(route).State = EntityState.Added;
                 db.SaveChanges();
-                return Ok();
+                return Json("All rigth");
             }
-            catch (Exception e)
-            {
-                return Forbid("Добавление записи не выполнено." + e.Message.ToString());
-            }
+            catch (Exception e) { return Forbid(); }
 
-
-
+            
         }
 
         private IEnumerable<string> GetPhotos(int id)
