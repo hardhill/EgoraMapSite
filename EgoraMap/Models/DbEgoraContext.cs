@@ -18,7 +18,6 @@ namespace EgoraMap.Models
             optionsBuilder.UseSqlServer(@"Data Source=SAPPHIRE;Initial Catalog=EgoraDB;Integrated Security=True;Connect Timeout=15;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
         }
 
-        public DbSet<Participant> Participants { get; set; }
         public DbSet<Route> Routes { get; set; }
         public DbSet<Photo> Photos { get; set; }
     }

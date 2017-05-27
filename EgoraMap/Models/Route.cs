@@ -16,12 +16,7 @@ namespace EgoraMap.Models
         public string RouteImage { get; set; }
         [Required(ErrorMessage = "Необходимо указать файл KML маршрута")]
         public string RouteKML { get; set; }
-        public virtual ICollection<Photo> Photos { get; set; }
-
-        public Route()
-        {
-            Photos = new List<Photo>();
-        }
+        public List<Photo> Photos { get; set; }
 
     }
 }

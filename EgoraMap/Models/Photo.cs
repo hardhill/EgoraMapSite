@@ -12,7 +12,7 @@ namespace EgoraMap.Models
         [Required()]
         public string PhotoName { get; set; }
 
-        public int? RouteId { get; set; }
-        public virtual Route Route { get; set; }
+        public int RouteId { get; set; }
+        public Route Route { get; set; }
     }
 }
