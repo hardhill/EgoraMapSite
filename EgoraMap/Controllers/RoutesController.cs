@@ -11,6 +11,7 @@ using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using System.Net;
 
+
 namespace EgoraMap.Controllers
 {
     [Produces("application/json")]
@@ -18,13 +19,14 @@ namespace EgoraMap.Controllers
     public class RoutesController : Controller
     {
 
-        DbEgoraContext db = new DbEgoraContext();
+
+        DbEgoraContext db;
         IHostingEnvironment _appEnvironment;
 
         List<ViewRoute> vrList = new List<ViewRoute>();
         public RoutesController(DbEgoraContext context, IHostingEnvironment appEnvironment)
         {
-            //this.db = context;
+            db = context;
             _appEnvironment = appEnvironment;
             if (db.Routes.Any())
             {
@@ -215,6 +217,7 @@ namespace EgoraMap.Controllers
         {
             List<string> photopath = new List<string>();
             List<Photo> photos;
+            
             using (var db2 = new DbEgoraContext())
             {
                 photos = db2.Photos.Where(x => x.RouteId == id).ToList();

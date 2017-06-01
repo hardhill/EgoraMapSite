@@ -8,17 +8,14 @@ namespace EgoraMap.Models
 {
     public class DbEgoraContext:DbContext
     {
-        //public DbEgoraContext(DbContextOptions<DbEgoraContext> options) : base(options)
-        //{
-
-        //}
+        
+        public DbSet<Route> Routes { get; set; }
+        public DbSet<Photo> Photos { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Data Source=SAPPHIRE;Initial Catalog=EgoraDB;Integrated Security=True;Connect Timeout=15;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+            string con = Startup.Configuration.GetSection("ConnectionStrings:DbEgoraContext").Value;
+            optionsBuilder.UseSqlServer(con);
         }
-
-        public DbSet<Route> Routes { get; set; }
-        public DbSet<Photo> Photos { get; set; }
     }
 }

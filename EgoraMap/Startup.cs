@@ -24,16 +24,16 @@ namespace EgoraMap
             Configuration = builder.Build();
         }
 
-        public IConfigurationRoot Configuration { get; }
+        public static IConfigurationRoot Configuration { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
-            string con = "Data Source=SAPPHIRE;Initial Catalog=EgoraDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-            services.AddDbContext<DbEgoraContext>(options => options.UseSqlServer(con));
+            string connectionString = Configuration.GetConnectionString("DbEgoraContext");
+            services.AddDbContext<DbEgoraContext>(options => options.UseSqlServer(connectionString));
             // Add framework services.
             services.AddMvc();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
